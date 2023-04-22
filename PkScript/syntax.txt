@@ -1,0 +1,24 @@
+// define uma variável chamada "name"
+var name;
+name = 0;
+
+// mostra o valor da variável "name" no console
+log name;
+
+// verifica se a variável "name" é igual a 0 e, se for, mostra "true" no console
+if name == 0 : log true;
+
+// retorna à primeira linha do programa
+back 0;
+
+// solicita que o usuário digite um texto para salvar na váriavel %getInput
+input "texto de input";
+
+// repete o comando "log 'Olá mundo!'" 5 vezes
+repeat 5 log "Olá mundo!";
+
+// cria um comentário
+# este é um comentário em uma linha de código
+
+//cria um request e executa um script
+include script.fluf;

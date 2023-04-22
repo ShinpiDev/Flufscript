@@ -1,0 +1,3 @@
+;
+include teste.fluf;
+log teste;

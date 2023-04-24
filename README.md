@@ -157,7 +157,7 @@ fluf(códigos_para_executar);
 
 ## Suporte e comunidade
 
-Nosso forúm online [Acessar](https://flufscript.freeforums.net/)
+Nosso forúm online [Acessar](https://flufscript.foroactivo.com/)
 
 ## Créditos
 

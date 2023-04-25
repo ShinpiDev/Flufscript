@@ -4,7 +4,6 @@ function __init__(data) {
   var variables = ["getInput"];
   var values = [""];
   var original_script = data;
-  var server = undefined;
 
   const console_value = document.createElement("span");
   console_value.setAttribute("id", "console");
@@ -14,18 +13,20 @@ function __init__(data) {
   console_value.style.fontFamily = "monospace";
   console_value.style.fontSize = "20px";
 
-  var tokens = ["var", "log", "if", "back", "input", "repeat", "#", "=", "!", "<", ">", "$","#"];
+  var tokens = ["var", "log", "if", "back", "input", "repeat", "#", "=", "!", "<", ">", "$","#","function","end","(",")","fluf","local","createWindow","screenSize","screenJs","windowStart","include","clear","show"];
 
   if (!data.startsWith(";")) {
-    //__error("The first line must be a ;", 0);
-    //return;
+    __error("The first line must be a ;", 0);
+    return;
   }
 
-  function __addScript(src, line) {
+  function __addScript(src,line) {
     if (!src.startsWith(";")) {
       __error("The first line must be a ;", word_id);
       return;
     }
+
+    ////////////////////////////////////////
 
     src = src.replace("\r", "");
     src = src.trim();
@@ -47,7 +48,16 @@ function __init__(data) {
       src[a] = src[a].trim();
     }
 
-    scripts = scripts.concat(src);
+    //console.log(src + " a")
+
+    ////////////////////////////////////////
+
+    let pos_include = scripts.indexOf(line);
+
+
+    scripts.splice(pos_include, 1, ...src);
+    
+    word_id = scripts.indexOf(line);
   }
 
   //Funções para facilitar o desenvolvimento
@@ -106,15 +116,13 @@ function __init__(data) {
         if (scripts[word_id].includes("%")) {
           text = text.split("::"); //separa as vars dos textos
           contains_vars = true;
-
-          console.log(text)
         }
 
         if (contains_vars) {
           for (var i = 0; i < text.length; i++) {
-            text[i] = text[i].trim();
             if (text[i].startsWith("%")) {
               var g = text[i].replace(text[i].substring(1, text[i]), "");
+              g = g.trim();
               if (variables.includes(g)) {
                 total_text += values[variables.indexOf(g)];
               } else {
@@ -154,31 +162,32 @@ function __init__(data) {
           } else {
             if (vl.startsWith("-")) {
               math();
-              vl = parseInt(values[variables.indexOf(name)]) - parseInt(vl.substring(1, vl.length));
+              vl = parseInt(values[variables.indexOf(name)]) - parseInt(vl);
               vl = vl.toString();
             } else {
               if (vl.startsWith("*")) {
                 math();
                 console.log(vl)
-                vl = parseInt(values[variables.indexOf(name)]) * parseInt(vl.substring(1, vl.length));
+                vl = parseInt(values[variables.indexOf(name)]) * parseInt(vl);
                 vl = vl.toString();
               } else {
                 if (vl.startsWith("/")) {
                   math();
                   console.log(vl)
-                  vl = parseInt(values[variables.indexOf(name)]) / parseInt(vl.substring(1, vl.length));
+                  vl = parseInt(values[variables.indexOf(name)]) / parseInt(vl);
                   vl = vl.toString();
                 } else {
                   if (vl.startsWith("$")) {
                     math();
                     console.log(vl)
-                    vl = parseInt(values[variables.indexOf(name)]) % parseInt(vl.substring(1, vl.length));
+                    vl = parseInt(values[variables.indexOf(name)]) % parseInt(vl);
                     vl = vl.toString();
+                    console.log(vl)
                   } else {
                     if (vl.startsWith("_")) {
                       math();
                       console.log(vl)
-                      vl = parseInt(values[variables.indexOf(name)]) ** parseInt(vl.substring(1, vl.length));
+                      vl = parseInt(values[variables.indexOf(name)]) ** parseInt(vl);
                       vl = vl.toString();
                     }
                   }
@@ -357,9 +366,10 @@ function __init__(data) {
                 } else {
                   if (scripts[word_id].startsWith("include")) {
                     var line = scripts[word_id];
-                    fetch(scripts[word_id].substring(8, scripts[word_id].length) + ".fluf")
+                    console.log(line + " a")
+                    fetch(line.substring(8, line.length) + ".fluf")
                       .then(response => response.text())
-                      .then(data => { __addScript(data); scripts[word_id] = ""; word_id--; })
+                      .then(data => {__addScript(data,line); word_id--})
                       .catch(error => { document.getElementById("console").innerText += error + "\n"; console.log(error) });
                   } else {
                     if (scripts[word_id] == "clear") {
@@ -437,6 +447,120 @@ function __init__(data) {
                           }else{
                             if(scripts[word_id].startsWith("#")) {
                               word_id++;
+                            }else{
+                              if(scripts[word_id].startsWith("local")) {
+                                var code = scripts[word_id].substring(5, scripts[word_id].length);
+                                code = code.trim();
+
+                                if(code.startsWith("set")) {
+                                  code = code.substring(4, code.length);
+                                  var vls = code.split(":");
+                                  if(vls[1].startsWith("%")) {
+                                    if(variables.includes(vls[1].substring(1, vls[1].length))){
+                                      vls[1] = values[variables.indexOf(vls[1].substring(1, vls[1].length))];
+                                    }else{
+                                      __error(vls[1] + " isn't defined!", word_id);
+                                    }
+                                    
+                                  }
+
+                                  localStorage.setItem(vls[0],vls[1]);
+                                }else{
+                                  if(code.startsWith("get")) {
+                                    code = code.substring(4, code.length);
+                                    var vls = code.split(":");
+                                    if(vls[1].startsWith("%")) {
+                                      if(variables.includes(vls[1].substring(1, vls[1].length))){
+                                        values[variables.indexOf(vls[1].substring(1, vls[1].length))] = localStorage.getItem(vls[0]);
+                                        
+                                      }else{
+                                        __error(vls[1] + " isn't defined!", word_id);
+                                      }
+                                      
+                                    }else{
+                                      __write(vls[1] + " <" + localStorage.getItem(vls[0]) + ">");
+                                    }
+                                  }else{
+                                    if(code.startsWith("rem")) {
+                                      code = code.substring(4, code.length);
+                                      code = code.trim();
+                                      localStorage.removeItem(code);
+                                    }
+                                  }
+                                }
+                              }else{
+                                if(scripts[word_id].startsWith("show")) {
+                                  var text = scripts[word_id].substring(5,scripts[word_id].length);
+                                  var contains_vars = false;
+                                  var total_text = "";
+
+                                  if (tokens.includes(text)) {
+                                    __error("Don't use especial words(" + text + ") on your script!", word_id);
+                                    word_id++;
+                                    text = "";
+                                    contains_vars = false;
+                                    total_text = "";
+                                  }
+                                  
+                                  if (scripts[word_id].includes("%")) {
+                                    text = text.split("::"); //separa as vars dos textos
+                                    contains_vars = true;
+                                  }
+
+                                  if (contains_vars) {
+                                    for (var i = 0; i < text.length; i++) {
+                                      //text[i] = text[i].trim();
+                                      console.log(text[i])
+                                      if (text[i].startsWith("%")) {
+                                        var g = text[i].replace(text[i].substring(1, text[i]), "");
+                                        g = g.trim();
+                                        if (variables.includes(g)) {
+                                          total_text += values[variables.indexOf(g)];
+                                        } else {
+                                          __error(g + " isn't defined!", word_id);
+                                        }
+                                      } else {
+                                        total_text += text[i];
+                                      }
+                                    }
+                                  }
+
+                                  alert(total_text);
+                                }else{
+                                  if(scripts[word_id] == "createWindow") {
+                                    var window_width = 600;
+                                    var window_height = 400;
+                                    var fluf_window = true;
+                                    localStorage.setItem("screen_scripts","");
+                                  }else{
+                                    if(scripts[word_id].startsWith("screenSize")) {
+                                      var screen_values = scripts[word_id].substring(11,scripts[word_id].length);
+                                      var vl = screen_values.split(":");
+                                      var window_width = parseInt(vl[0]);
+                                      var window_height = parseInt(vl[1]);
+                                    }else{
+                                      if(scripts[word_id] == "windowStart") {
+                                        window.open("packages/window.html",window_width,window_height);
+                                      }else{
+                                        if(scripts[word_id].startsWith("screenJs")) {
+                                          var js = localStorage.getItem("screen_scripts");
+                                          if(js == undefined) js = "";
+
+                                          js += scripts[word_id].substring(9,scripts[word_id].length) + ";";
+
+                                          localStorage.setItem("screen_scripts",js);
+                                        }else{
+                                          if(scripts[word_id].length == 0) {
+                                            //faz nada
+                                          }else{
+                                            __error("Unknown token (" + scripts[word_id] + ")",word_id);
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
                             }
                           }
                         }
@@ -454,7 +578,8 @@ function __init__(data) {
 }
 
 //Lê o script de fora do interpretador
+
 fetch("index.fluf")
   .then(response => response.text())
   .then(data => __init__(data))
-  .catch(error => /*document.getElementById("console").innerText += error + "\n"*/ console.log(error));
+  .catch(error => console.log(error));

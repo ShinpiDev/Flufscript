@@ -1,4 +1,4 @@
-# Flufscript 1.0
+# Flufscript 1.1
 
 ## Visão geral
 
@@ -104,7 +104,7 @@ Ao importar um script com o "include", as variáveis e funções desse script n�
 # todo script deve começar com ; na primeira linha e deve ser separado de todo o script;
 ;
 
-# define uma variável chamada "name";
+# define uma variável chamada name;
 var name;
 name = 0;
 
@@ -119,20 +119,23 @@ numero = *1; #multiplica por 1;
 numero = /1; #divide por 1;
 numero = $1; #resto de divisão por 1;
 
-# mostra o valor da variável "name" no console;
+# mostra o valor da variável name no console;
 log name;
 
-# verifica se a variável "name" é igual a 0 e, se for, mostra "true" no console;
+# verifica se a variável name é igual a 0 e, se for, mostra true no console;
 if name == 0 : log true;
 
 # retorna à primeira linha do programa
 back 0;
 
 # solicita que o usuário digite um texto para salvar na váriavel %getInput;
-input "texto de input";
+input texto de input;
 
-# repete o comando "log 'Olá mundo!'" 5 vezes;
-repeat 5 log "Olá mundo!";
+# Mostra um texto em uma janela de dialogo;
+show texto;
+
+# repete o comando log 'Olá mundo!' 5 vezes;
+repeat 5 log Olá mundo!;
 
 # cria um comentário e deve terminar com um ;
 # este é um comentário em uma linha de código;
@@ -153,6 +156,25 @@ end;
 
 # Executa uma série de comandos flufscript em uma única linha, os scripts devem ser separados por um $;
 fluf(códigos_para_executar);
+
+# Salva, Carrega ou Deleta um valor na memória
+local <get/rem/set>:<args>;
+
+local set ValorNaMem:%valor;
+local get ValorNaMem:%valor;
+local rem ValorNaMem;
+
+# Cria uma janela Html;
+createWindow;
+
+# Define o tamanho da janela;
+screenSize largura:altura;
+
+# Adiciona uma linha javascript a janela;
+screenJs scriptEmJs;
+
+# Abre a janela;
+windowStart;
 ```
 
 ## Suporte e comunidade
